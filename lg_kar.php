@@ -14,8 +14,8 @@ session_start();
       </div>
       <div class="row">
         
-        <div class="col-md-6">
-          <div class="alert alert-info">
+        <div class="col-md-6 login-column">
+          <div class="alert alert-info login-card">
           <br />
           <?php if (isset($_GET['error_login']) && $_GET['error_login']==1): ?>
             <div class="alert alert-danger">
@@ -43,10 +43,12 @@ session_start();
           </div>
         </div>
         
-        <div class="col-md-6">
-          <div class="alert alert-success">
-            <strong> Cari Karyawan</strong>
-            <form method="get" action="cari_karyawan.php">
+        <div class="col-md-6 login-column">
+          <div class="alert alert-search login-card">
+            <div class="login-search-header">
+              <strong>Cari Rekan Kerja</strong>
+            </div>
+            <form method="get" action="cari_karyawan.php" class="login-search-form">
               <div class="input-group">
                 <input type="text" class="form-control" name="nama" placeholder="Search">
                 <div class="input-group-btn">
@@ -56,6 +58,10 @@ session_start();
                 </div>
                </div>
             </form>
+            <div class="login-gif-wrapper">
+              <img src="assets/img/ambatron.jpg" alt="Ilustrasi kolaborasi karyawan" class="login-gif">
+              <p class="login-gif-caption">Temukan profil rekan kerja Anda dan kolaborasikan proses penilaian dengan mudah.</p>
+            </div>
           </div>
         </div>
 

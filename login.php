@@ -52,9 +52,11 @@ session_start();
         </div>
         
         <div class="col-md-6">
-          <div class="alert alert-success">
-            <strong> Cari Karyawan</strong>
-            <form method="get" action="cari_karyawan.php">
+          <div class="alert alert-search">
+            <div class="login-search-header">
+              <strong>Cari Karyawan</strong>
+            </div>
+            <form method="get" action="cari_karyawan.php" class="login-search-form">
               <div class="input-group">
                 <input type="text" class="form-control" name="nama" placeholder="Search">
                 <div class="input-group-btn">
@@ -64,6 +66,10 @@ session_start();
                 </div>
                </div>
             </form>
+            <div class="login-gif-wrapper">
+              <img src="assets/img/tangga.gif" alt="Ilustrasi tangga kesuksesan" class="login-gif">
+              <p class="login-gif-caption">Naikkan performa tim dengan mencari data karyawan secara cepat.</p>
+            </div>
           </div>
         </div>
 

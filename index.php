@@ -7,7 +7,10 @@
         header('location:login.php');
         exit();
     }
-    
+?>
+<?php include 'header.php';?>
+<?php include 'menu.php';?>
+<?php
     // Variabel level akan digunakan untuk kontrol akses
     $user_level = $_SESSION['level'] ?? 'guest'; // Default ke 'guest' jika level belum diset
     $role_label = ($user_level === 'admin') ? 'Administrator' : 'Karyawan';
@@ -17,6 +20,7 @@
 
     $stats = [];
     if ($user_level === 'admin') {
+        // Gunakan objek $db yang disediakan oleh header.php setelah include.
         $stats = [
             'admin' => (int) $db->totaladmin(),
             'kriteria' => (int) $db->totalkriteria(),
@@ -28,8 +32,6 @@
     // PENTING: Untuk admin, dashboard ini akan menampilkan konten admin.
     // Jika user adalah Karyawan ('user'), mereka akan melihat konten user.
 ?>
-<?php include 'header.php';?>
-<?php include 'menu.php';?>
 
 <div class="content-wrapper">
     <div class="content">

@@ -43,21 +43,13 @@
                     <span class="icon-bar"></span>
                 </button>
                 <div class="brand-identity">
-                    <div class="brand-icon">
-                        <i class="fa fa-gift"></i>
-                    </div>
+                    <img src="assets/img/dim.png" alt="Logo PT. Grafika Kreatif Indonesia" class="brand-logo">
                     <div class="brand-text">
                         <span class="brand-subtitle">PT. Grafika Kreatif Indonesia</span>
                         <span class="brand-title">Pabrik Packaging Hampers</span>
                         <span class="brand-slogan">Sistem Penunjang Keputusan Pengangkatan Karyawan</span>
                     </div>
                 </div>
-            </div>
-            <div class="brand-motto hidden-xs hidden-sm">
-                <span class="brand-badge">
-                    <i class="fa fa-dropbox"></i>
-                    Custom Box Production &amp; Finishing Excellence
-                </span>
             </div>
         </div>
     </div>
