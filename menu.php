@@ -8,6 +8,17 @@ $user_level = $_SESSION['level'] ?? 'user';
 
 <section class="menu-section">
     <div class="container">
+        <div class="menu-header">
+            <div class="menu-header-left">
+                <span class="menu-subtitle"><i class="fa fa-industry"></i> Console Produksi</span>
+                <h3 class="menu-title">Navigasi Operasional Pabrik</h3>
+            </div>
+            <div class="menu-badges hidden-xs hidden-sm">
+                <span class="menu-badge"><i class="fa fa-cube"></i> Desain Box Premium</span>
+                <span class="menu-badge"><i class="fa fa-magic"></i> Finishing Hampers</span>
+                <span class="menu-badge"><i class="fa fa-truck"></i> Distribusi Tepat Waktu</span>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="navbar-collapse collapse ">

@@ -34,18 +34,30 @@
 		<script src="assets/js/datatable.js"></script>
 </head>
 <body>
-    <div class="navbar navbar-inverse set-radius-zero">
+    <div class="navbar navbar-inverse set-radius-zero brand-bar">
         <div class="container">
-            <div class="navbar-header">
+            <div class="navbar-header brand-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-              
-                <h4 class="page-head" style="color:white">
-                 <img src="tcpdf/images/tcpdf_logo.jpg" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; margin-right: 10px;">  
-                Sistem Penunjang Keputusan Pengangkatan Karyawan tetap PT.Grafika Kreatif Indonesia</h4>
+                <div class="brand-identity">
+                    <div class="brand-icon">
+                        <i class="fa fa-gift"></i>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-subtitle">PT. Grafika Kreatif Indonesia</span>
+                        <span class="brand-title">Pabrik Packaging Hampers</span>
+                        <span class="brand-slogan">Sistem Penunjang Keputusan Pengangkatan Karyawan</span>
+                    </div>
+                </div>
+            </div>
+            <div class="brand-motto hidden-xs hidden-sm">
+                <span class="brand-badge">
+                    <i class="fa fa-dropbox"></i>
+                    Custom Box Production &amp; Finishing Excellence
+                </span>
             </div>
         </div>
     </div>
