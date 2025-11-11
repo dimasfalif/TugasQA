@@ -162,11 +162,14 @@
                                             if ($user_level == 'admin') {
                                                 if($db->select('id_calon_kr','hasil_spk')->where("id_calon_kr='$data[id_calon_kr]' and minggu='$minggu' and bulan='$bulan' and tahun='$tahun'")->count() == 0){
                                                     // INSERT
-                                                    // Asumsi kolom tabel: (id_hasil, id_calon_kr, hasil_spk, minggu, bulan, tahun)
-                                                    $db->insert('hasil_spk', "'','$data[id_calon_kr]','$h','$minggu','$bulan','$tahun'")->count();
+                                                    // Kolom tabel: id_calon_kr, hasil_spk, minggu, bulan, tahun (id_spk auto_increment)
+                                                    $columns = 'id_calon_kr,hasil_spk,minggu,bulan,tahun';
+                                                    $values = [$data['id_calon_kr'], $h, $minggu, $bulan, $tahun];
+                                                    $db->insert('hasil_spk', $columns);
+                                                    $db->execute_dml($values);
                                                 } else {
                                                     // UPDATE
-                                                    $db->update('hasil_spk',"hasil_spk='$h',minggu='$minggu',bulan='$bulan',tahun='$tahun'")->where("id_calon_kr='$data[id_calon_kr]' and minggu='$minggu' and bulan='$bulan' and tahun='$tahun'")->count();
+                                                    $db->update('hasil_spk',"hasil_spk='$h',minggu='$minggu',bulan='$bulan',tahun='$tahun'")->where("id_calon_kr='$data[id_calon_kr]' and minggu='$minggu' and bulan='$bulan' and tahun='$tahun'")->execute_dml();
                                                 }
                                             }
                                         ?>
