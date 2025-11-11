@@ -1,69 +1,74 @@
-<?php
-    require_once 'db/db_config.php';
-    extract($_POST);
-    
-    // --- 1. AMBIL DAN PISAHKAN NILAI DARI FORM (10 nilai kriteria) ---
-    
-    $kriteria_values = [];
-    if (is_array($_POST['place'])) {
-        foreach($_POST['place'] as $val) {
-            $kriteria_values[] = (int) $val; 
-        }
-    }
-    
-    // Asumsi urutan kriteria di form (berdasarkan tabel 'kriteria'):
-    // [0] ABSENSI, [1] SOP_Packing, [2] Kerja_Sama, [3] Tanggung_jawab, [4] Inisiatif, 
-    // [5] Kerapian, [6] Ketelitian, [7] Kedisiplinan, [8] Kecepatan, [9] Atribut_pakaian_lengkap
-    
-    // --- 2. TENTUKAN DAFTAR KOLOM BERDASARKAN URUTAN DI TABEL hasil_tpa ---
-    // Daftar ini diambil PERSIS dari struktur hasil_tpa (screenshot terakhir Anda)
-    $kolom_db_order = [
-        'SOP_Packing',      // Urutan 2 di DB
-        'Tanggung_jawab',   // Urutan 3 di DB
-        'Inisiatif',        // Urutan 4 di DB
-        'Kerapian',         // Urutan 5 di DB
-        'Ketelitian',       // Urutan 6 di DB
-        'Kecepatan',        // Urutan 7 di DB
-        'Atribut_pakaian_lengkap', // Urutan 8 di DB
-        'absensi',          // Urutan 9 di DB
-        'kedisiplinan',     // Urutan 10 di DB
-        'kerja_sama'        // Urutan 11 di DB
-    ];
-    
-    // Tambahkan ID di awal daftar kolom
-    $final_column_names = array_merge(['id_calon_kr'], $kolom_db_order);
-    $columns = '`' . implode('`, `', $final_column_names) . '`';
-    
-    // --- 3. BUAT ARRAY DATA UNTUK INSERT (Mapping Manual) ---
-    
-    $data_to_insert = [];
-    $data_to_insert[] = (int) $id_calon_kr; // Nilai 1: ID Karyawan
-
-    // Mapping Nilai Form (Input) ke Posisi Kolom DB (Output)
-    $data_to_insert[] = $kriteria_values[1]; // 2. SOP_Packing (Nilai dari index 1)
-    $data_to_insert[] = $kriteria_values[3]; // 3. Tanggung_jawab (Nilai dari index 3)
-    $data_to_insert[] = $kriteria_values[4]; // 4. Inisiatif (Nilai dari index 4)
-    $data_to_insert[] = $kriteria_values[5]; // 5. Kerapian (Nilai dari index 5)
-    $data_to_insert[] = $kriteria_values[6]; // 6. Ketelitian (Nilai dari index 6)
-    $data_to_insert[] = $kriteria_values[8]; // 7. Kecepatan (Nilai dari index 8)
-    $data_to_insert[] = $kriteria_values[9]; // 8. Atribut_pakaian_lengkap (Nilai dari index 9)
-    $data_to_insert[] = $kriteria_values[0]; // 9. absensi (Nilai dari index 0)
-    $data_to_insert[] = $kriteria_values[7]; // 10. kedisiplinan (Nilai dari index 7)
-    $data_to_insert[] = $kriteria_values[2]; // 11. kerja_sama (Nilai dari index 2)
-
-    // Debugging
-    if (count($data_to_insert) !== 11) {
-        die("FATAL ERROR: Jumlah data setelah mapping salah. Ada " . (count($data_to_insert) - 1) . " kriteria yang terambil.");
-    }
-    
-    // --- 4. Bangun dan Eksekusi Query ---
-    $db->insert('hasil_tpa', $columns);
-    
-    if($db->execute_dml($data_to_insert) > 0){
-        header('location:tampil_tpa.php');
-        exit;
-    } else {
-        header('location:tampil_tpa.php?error_msg=Gagal memasukkan data. Periksa ID Karyawan atau data subkriteria.');
-        exit;
-    }
-?>
+   <?php
+       require_once 'db/db_config.php';
+       
+       // Validasi input dasar
+       if (!isset($_POST['id_calon_kr']) || !is_numeric($_POST['id_calon_kr']) || !is_array($_POST['place']) || count($_POST['place']) !== 10) {
+           die("Input tidak valid. Pastikan ID karyawan (angka) dan 10 kriteria dikirim dari form.");
+       }
+       
+       $id_calon_kr = (int) $_POST['id_calon_kr'];
+       
+       // Ambil dan pisahkan nilai dari form (10 nilai kriteria)
+       $kriteria_values = [];
+       foreach ($_POST['place'] as $val) {
+           if (!is_numeric($val)) {
+               die("Nilai kriteria harus berupa angka (termasuk desimal).");
+           }
+           $kriteria_values[] = (float) $val;  // Cast ke float untuk mendukung desimal (sesuai DB float(10,2))
+       }
+       
+       // Urutan kriteria di form (berdasarkan tabel 'kriteria'):
+       // [0] ABSENSI, [1] SOP_Packing, [2] Kerja_Sama, [3] Tanggung_jawab, [4] Inisiatif, 
+       // [5] Kerapian, [6] Ketelitian, [7] Kedisiplinan, [8] Kecepatan, [9] Atribut_pakaian_lengkap
+       
+       // Daftar kolom berdasarkan urutan di tabel hasil_tpa (sesuai struktur DB)
+       $kolom_db_order = [
+           'SOP_Packing',
+           'Tanggung_jawab',
+           'Inisiatif',
+           'Kerapian',
+           'Ketelitian',
+           'kecepatan',  // Diperbaiki: huruf kecil sesuai DB (bukan 'Kecepatan')
+           'Atribut_pakaian_lengkap',
+           'ABSENSI',
+           'kedisiplinan',
+           'kerja_sama'
+       ];
+       
+       $final_column_names = array_merge(['id_calon_kr'], $kolom_db_order);
+       $columns = '`' . implode('`, `', $final_column_names) . '`';
+       
+       // Buat array data untuk INSERT (mapping sesuai urutan DB)
+       $data_to_insert = [$id_calon_kr];
+       $data_to_insert[] = $kriteria_values[1]; // SOP_Packing
+       $data_to_insert[] = $kriteria_values[3]; // Tanggung_jawab
+       $data_to_insert[] = $kriteria_values[4]; // Inisiatif
+       $data_to_insert[] = $kriteria_values[5]; // Kerapian
+       $data_to_insert[] = $kriteria_values[6]; // Ketelitian
+       $data_to_insert[] = $kriteria_values[8]; // kecepatan
+       $data_to_insert[] = $kriteria_values[9]; // Atribut_pakaian_lengkap
+       $data_to_insert[] = $kriteria_values[0]; // absensi
+       $data_to_insert[] = $kriteria_values[7]; // kedisiplinan
+       $data_to_insert[] = $kriteria_values[2]; // kerja_sama
+       
+       // Verifikasi jumlah data
+       if (count($data_to_insert) !== 11) {
+           die("FATAL ERROR: Jumlah data setelah mapping salah. Ada " . (count($data_to_insert) - 1) . " kriteria yang terambil.");
+       }
+       
+       // Bangun dan eksekusi query
+       $db->insert('hasil_tpa', $columns);
+       $result = $db->execute_dml($data_to_insert);
+       
+       if ($result > 0) {
+           header('Location: tampil_tpa.php');
+           exit;
+       } else {
+           // Log error untuk debug (opsional)
+           error_log("Gagal insert ke hasil_tpa: " . print_r($data_to_insert, true));
+           $error_msg = urlencode("Gagal memasukkan data. Periksa ID Karyawan (mungkin duplikat) atau data subkriteria.");
+           header('Location: tampil_tpa.php?error_msg=' . $error_msg);
+           exit;
+       }
+   ?>
+   
