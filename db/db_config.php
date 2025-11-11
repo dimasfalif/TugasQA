@@ -6,26 +6,26 @@
         protected $dsp = '';
         private $cmd = '';
 
-        // Hapus properti private $db. Koneksi sekarang adalah objek $this itu sendiri.
-
         function __construct(){
             try {
-                // PERBAIKAN KRITIS #1: Memanggil constructor induk PDO.
-                // Ini menghilangkan Fatal Error "PDO object is not initialized".
                 parent::__construct($this->dsn, $this->dsu, $this->dsp);
-                
-                // Atur error mode untuk debugging yang lebih baik
                 $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
             } catch (PDOException $e) {
-                // Jika koneksi gagal, hentikan program dan tampilkan pesan
                 die("Koneksi database gagal: " . $e->getMessage()); 
             }
         }
 
         // --- Core Query Builder ---
         function select($c,$t){ $this->cmd = "select $c from $t"; return $this; }
-        function insert($t,$v){ $this->cmd = "insert into $t values($v)"; return $this; }
+        
+        // ** Metode insert() yang aman: Menerima daftar kolom dan membuat placeholders '?' **
+        function insert($t, $columns){ 
+            $col_count = count(explode(',', $columns));
+            $placeholders = implode(',', array_fill(0, $col_count, '?'));
+            $this->cmd = "INSERT INTO $t ($columns) VALUES ($placeholders)"; 
+            return $this; 
+        }
+        
         function update($t,$v){ $this->cmd = "update $t set $v"; return $this; }
         function truncate($table){ $this->cmd = "truncate $table"; return $this; }
         function delete($t){ $this->cmd = "delete from $t"; return $this; }
@@ -39,22 +39,30 @@
 
         // --- Executable Methods ---
         function get(){
-            // PERBAIKAN KRITIS #2: Gunakan $this->prepare() (bukan $this->db->prepare())
             $q = $this->prepare($this->cmd);
             $q->execute();
             return $q->fetchAll();
         }
+        
+        // Metode count() - HANYA untuk SELECT
         function count(){
-            // PERBAIKAN KRITIS #3: Gunakan $this->prepare()
-            $q = $this->prepare($this->cmd);
+            $q = $this->prepare($this->cmd); 
             $q->execute();
             return $q->rowCount(); 
         }
+        
+        // ** Metode eksekusi DML (INSERT/UPDATE/DELETE) yang aman **
+        function execute_dml($values = []){
+            $q = $this->prepare($this->cmd);
+            $q->execute($values); // Mengikat nilai ke placeholders '?'
+            return $q->rowCount(); 
+        }
 
-        // --- Sisanya (Metode Khusus SPK) ---
+        // (Semua fungsi lain seperti rumus, bobot, totaladmin, dll. tetap sama)
+        // ... (Fungsi-fungsi lain yang Anda miliki) ...
+        
         function rumus($data,$kemampuan){ 
             foreach($this->select('type','kriteria')->where("kriteria='$kemampuan'")->get() as $crt){
-                // Kode rumus Anda...
                 if($crt[0]=='Benefit'){
                     foreach ($this->select("max(sub_kriteria.nilai)",'hasil_tpa,sub_kriteria')->where('hasil_tpa.'.$kemampuan.'=sub_kriteria.id_subkriteria')->get() as $nm) {
                         $nilai_max = $nm[0];
@@ -110,6 +118,4 @@
         }
     }
     
-    // Inisialisasi objek database yang sekarang merupakan objek PDO yang valid
     $db = new database();
-?>

@@ -1,65 +1,42 @@
 <?php
-    session_start();
-    error_reporting(0);
-    if(empty($_SESSION['id'])){
-        header('location:login.php?error_login=1');
+    require_once 'db/db_config.php';
+    extract($_POST);
+    
+    // 1. Sanitasi Nama Kriteria
+    $crt_tmp = explode(' ',$kriteria);
+    $crt = str_replace(str_split('\\/:*?"<>|+-()'), '', implode('_', $crt_tmp)); 
+    
+    // --- 2. PREPARE DATA DAN KOLOM UNTUK INSERT ---
+    
+    // ASUMSI: Tabel kriteria memiliki 4 kolom yang diisi
+    $column_names = [
+        'id_kriteria', 
+        'kriteria',    
+        'bobot',       
+        'type'         
+    ]; 
+    
+    $data_to_insert = [
+        NULL,         // id_kriteria (AUTO_INCREMENT)
+        $crt,          // Nama kriteria yang sudah disanitasi
+        (float)$bobot,    
+        $type      
+    ];
+    
+    $columns = '`' . implode('`, `', $column_names) . '`';
+    
+    // 3. EKSEKUSI INSERT (Gunakan execute_dml())
+    $db->insert('kriteria', $columns);
+    
+    if($db->execute_dml($data_to_insert) > 0){
+        
+        // ALTER TABLE dijalankan setelah INSERT berhasil
+        $db->alter('hasil_tpa','add column',"`$crt`",'float(10,2)')->get();
+        
+        header('location:tampil_kriteria.php');
+        exit;
+    } else {
+        header('location:tampil_kriteria.php?error_msg=Gagal menginput data kriteria.');
+        exit;
     }
 ?>
-<?php include 'header.php';?>
-<?php include 'menu.php';?>
-<div class="content-wrapper">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-            <br/>  
-              <div class="panel panel-default">
-                  <div class="panel-heading">
-                    Form Kriteria
-                  </div>
-                  <div class="panel-body">
-                      <form method="post" action="insert_kriteria.php" enctype="multipart/form-data">
-                          <?php if (!empty($_GET['error_msg'])): ?>
-                              <div class="alert alert-danger">
-                                  <?= $_GET['error_msg']; ?>
-                              </div>
-                          <?php endif ?>
-                          <div class="form-group">
-                              <label for="nama">Nama Kriteria</label>
-                              <input type="text" required class="form-control" id="kriteria" name="kriteria">
-                          </div>
-                          <div class="form-group">
-                              <label>Bobot</label>
-                              <?php 
-                                //   $n = 0; 
-                                //   foreach ($db->select('bobot','kriteria')->get() as $k){
-                                //      $n += $k['bobot'];
-                                //   }
-                                //   $h = 1000-$n;
-                               ?>
-                              <input type="number" required name="bobot" class="form-control bobot " pattern="^[0-9\.\-\/]+$" value="<?= $h ?>">
-                          </div>
-                          <div class="form-group">
-                              <label>Type</label>
-                              <select class="form-control" name="type">
-                                    <option value="Cost">Cost</option>
-                                    <option value="Benefit">Benefit</option>
-                                </select>
-                          </div>
-                          <div class="form-group">
-                              <button class="btn btn-primary">Simpan</button>
-                          </div>
-                      </form>
-                  </div>
-              </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</div>
-
-<?php include 'footer.php';?>
-<script type="text/javascript">
-    $(function(){
-        $("#ds").addClass('menu-top-active');
-    });
-</script>

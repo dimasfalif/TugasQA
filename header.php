@@ -5,7 +5,7 @@
         session_start();
     }
     
-    include 'db/db_config.php';
+    require_once 'db/db_config.php';
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">

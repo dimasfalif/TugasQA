@@ -1,4 +1,5 @@
 <?php
+    require_once 'db/db_config.php';
     session_start();
     error_reporting(0);
     
@@ -8,7 +9,7 @@
         exit();
     }
     
-    // 2. Ambil level user untuk kontrol tampilan dan aksi
+    // 2. Ambil level user
     $user_level = $_SESSION['level'] ?? 'user';
 ?>
 <?php include 'header.php';?>
@@ -28,7 +29,7 @@
                       </div>
                     <?php endif ?>
                 </div>
-            </div>  
+            </div> 	
             <div class="row">
                 <?php if ($user_level == 'admin'): ?>
                     <div><a href="input_tpa.php" class="btn btn-info">Tambah Data</a></div>
@@ -40,7 +41,12 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama</th>
-                                <?php foreach ($db->select('kriteria','kriteria')->get() as $kr ): ?>
+                                
+                                <?php 
+                                // Ambil daftar kriteria untuk HEADER KOLOM
+                                $kriteria_list = $db->select('kriteria','kriteria')->get();
+                                foreach ($kriteria_list as $kr ): 
+                                ?>
                                 <th><?= $kr['kriteria']?></th>
                                 <?php endforeach ?>
                                 
@@ -50,18 +56,46 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $no=1; foreach($db->select('karyawan.id_calon_kr,karyawan.nama,hasil_tpa.*','karyawan,hasil_tpa')->where('karyawan.id_calon_kr=hasil_tpa.id_calon_kr')->get() as $data): ?>
+                            <?php 
+                            $no=1; 
+                            
+                            // KOREKSI KRITIS: Ambil data langsung dari hasil_tpa
+                            $hasil_tpa_data = $db->select('*','hasil_tpa')->get();
+                            
+                            foreach($hasil_tpa_data as $data): 
+                                
+                                // Lookup Nama Karyawan di dalam loop
+                                $karyawan_info = $db->select('nama','karyawan')->where('id_calon_kr='.$data['id_calon_kr'])->get();
+                                $nama_karyawan = $karyawan_info[0]['nama'] ?? 'N/A'; // Jika nama tidak ditemukan
+                            ?>
                             <tr>
                                 <td><?= $no;?></td>
-                                <td><?= $data['nama']?></td>
+                                <td><?= $nama_karyawan ?></td>
                                 
-                                <?php foreach ($db->select('kriteria','kriteria')->get() as $k): ?>
-                                    <td>
-                                        <?= $db->getnamesubkriteria($data[$k['kriteria']])?> 
-                                        <?php if ($user_level == 'admin'): ?>
-                                            (Nilai = <?= $db->getnilaisubkriteria($data[$k['kriteria']])?>)
-                                        <?php endif; ?>
-                                    </td>
+                                <?php 
+                                // Loop untuk mengisi setiap kolom kriteria
+                                foreach ($kriteria_list as $k): 
+                                ?>
+                                <td>
+                                    <?php 
+                                    // Mengamankan pengambilan data dengan ?? (null coalescing)
+                                    $kriteria_key = $k['kriteria'];
+                                    
+                                    // Mengambil ID subkriteria dari array hasil_tpa. 
+                                    // Jika kolom tidak ada atau NULL, berikan nilai 0.
+                                    $id_subkriteria = $data[$kriteria_key] ?? 0;
+                                    
+                                    // Jika ID subkriteria valid (bukan 0 atau null), tampilkan namanya
+                                    if ($id_subkriteria > 0) {
+                                        echo $db->getnamesubkriteria($id_subkriteria);
+                                        if ($user_level == 'admin'): 
+                                            echo " (Nilai = " . $db->getnilaisubkriteria($id_subkriteria) . ")";
+                                        endif; 
+                                    } else {
+                                        echo '-'; // Tampilkan '-' jika nilai kosong/tidak valid
+                                    }
+                                    ?>
+                                </td>
                                 <?php endforeach ?>
                                 
                                 <?php if ($user_level == 'admin'): ?>
@@ -73,7 +107,7 @@
                             </tr>
                             <?php $no++; endforeach; ?>
                         </tbody>
-                    </table>    
+                    </table> 	
                 </div>
             </div>
             
